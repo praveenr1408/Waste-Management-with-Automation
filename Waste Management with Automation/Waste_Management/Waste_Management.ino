@@ -3,8 +3,8 @@
 #include <EEPROM.h>
 
 // Set up your Firebase credentials
-#define FIREBASE_HOST "my-app-3de95-default-rtdb.firebaseio.com"
-#define FIREBASE_AUTH "YwOotL0dOX4oiqAPoWYnik5Rn8fAq8nmkjOLmPXA"
+#define FIREBASE_HOST "iwms-v2-default-rtdb.firebaseio.com"
+#define FIREBASE_AUTH "Um0c3b25OdguskNJF3OmT8XPbDXo4h2CDh6b5fzR"
 
 // Set up your WiFi credentials
 const char* ssid = "Redmi";
@@ -99,13 +99,13 @@ void ultrasonic_reading() {
   Serial.println(distance);
 
   // Send the distance value to Firebase
-  Firebase.setInt(firebaseData1, "/WasteBox/Height(CM)/", distance);
+  Firebase.setInt(firebaseData1, "/Trash-Bin/Bin-1/", distance);
 }
 
 // Function to control LEDs based on Firebase values
 void controlLEDs() {
   // Check Firebase for led1 status
-  if (Firebase.getInt(firebaseData1, "/Automation/Led1")) {
+  if (Firebase.getInt(firebaseData1, "/Automation/Led-1")) {
     int led1State = firebaseData1.intData();
     digitalWrite(led1, led1State); // Turn led1 on/off
     Serial.print("led1: ");
@@ -117,7 +117,7 @@ void controlLEDs() {
   }
 
   // Check Firebase for led2 status
-  if (Firebase.getInt(firebaseData1, "/Automation/Led2")) {
+  if (Firebase.getInt(firebaseData1, "/Automation/Led-2")) {
     int led2State = firebaseData1.intData();
     digitalWrite(led2, led2State); // Turn led2 on/off
     Serial.print("led2: ");
@@ -129,7 +129,7 @@ void controlLEDs() {
   }
 
   // Check Firebase for led3 status
-  if (Firebase.getInt(firebaseData1, "/Automation/Led3")) {
+  if (Firebase.getInt(firebaseData1, "/Automation/Led-3")) {
     int led3State = firebaseData1.intData();
     digitalWrite(led3, led3State); // Turn led3 on/off
     Serial.print("led3: ");
