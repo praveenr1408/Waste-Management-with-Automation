@@ -1,6 +1,5 @@
 #include <WiFi.h>
 #include <FirebaseESP32.h>
-#include <EEPROM.h>
 
 // Set up your Firebase credentials
 #define FIREBASE_HOST "iwms-v2-default-rtdb.firebaseio.com"
@@ -12,14 +11,11 @@ const char* password = "876543210";
 
 const int trigPin = 12;
 const int echoPin = 14;
-const int totalValue = 20;  // Total value for percentage calculation
 
 const int led1 = 26;
 const int led2 = 25;
 const int led3 = 33;
-
-// EEPROM size
-#define EEPROM_SIZE 3 // Store 3 bytes for the 3 LEDs
+const int led4 = 32; // New LED
 
 // Create Firebase objects
 FirebaseData firebaseData1;
@@ -34,9 +30,7 @@ void setup() {
   pinMode(led1, OUTPUT);
   pinMode(led2, OUTPUT);
   pinMode(led3, OUTPUT);
-
-  // Initialize EEPROM
-  EEPROM.begin(EEPROM_SIZE);
+  pinMode(led4, OUTPUT); // Set led4 as output
 
   // Connect to WiFi
   WiFi.begin(ssid, password);
@@ -57,21 +51,6 @@ void setup() {
 
   Firebase.begin(&firebaseConfig, &firebaseAuth);
   Firebase.reconnectWiFi(true); // Ensure WiFi reconnects automatically
-
-  // Load saved LED states from EEPROM and apply
-  int led1State = EEPROM.read(0);
-  int led2State = EEPROM.read(1);
-  int led3State = EEPROM.read(2);
-  digitalWrite(led1, led1State);
-  digitalWrite(led2, led2State);
-  digitalWrite(led3, led3State);
-
-  Serial.print("LED1 State from EEPROM: ");
-  Serial.println(led1State);
-  Serial.print("LED2 State from EEPROM: ");
-  Serial.println(led2State);
-  Serial.print("LED3 State from EEPROM: ");
-  Serial.println(led3State);
 }
 
 void loop() {
@@ -110,10 +89,6 @@ void controlLEDs() {
     digitalWrite(led1, led1State); // Turn led1 on/off
     Serial.print("led1: ");
     Serial.println(led1State ? "ON" : "OFF");
-    
-    // Save led1 state to EEPROM
-    EEPROM.write(0, led1State);
-    EEPROM.commit();
   }
 
   // Check Firebase for led2 status
@@ -122,10 +97,6 @@ void controlLEDs() {
     digitalWrite(led2, led2State); // Turn led2 on/off
     Serial.print("led2: ");
     Serial.println(led2State ? "ON" : "OFF");
-    
-    // Save led2 state to EEPROM
-    EEPROM.write(1, led2State);
-    EEPROM.commit();
   }
 
   // Check Firebase for led3 status
@@ -134,9 +105,13 @@ void controlLEDs() {
     digitalWrite(led3, led3State); // Turn led3 on/off
     Serial.print("led3: ");
     Serial.println(led3State ? "ON" : "OFF");
-    
-    // Save led3 state to EEPROM
-    EEPROM.write(2, led3State);
-    EEPROM.commit();
+  }
+
+  // Check Firebase for led4 status
+  if (Firebase.getInt(firebaseData1, "/Automation/Led-4")) {
+    int led4State = firebaseData1.intData();
+    digitalWrite(led4, led4State); // Turn led4 on/off
+    Serial.print("led4: ");
+    Serial.println(led4State ? "ON" : "OFF");
   }
 }
