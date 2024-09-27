@@ -11,10 +11,6 @@ const char* password = "876543210";
 
 const int trigPin = 12;
 const int echoPin = 14;
-const int led1 = 26;
-const int led2 = 25;
-const int led3 = 33;
-const int led4 = 32; // New LED
 
 // Create Firebase objects
 FirebaseData firebaseData1;
@@ -30,10 +26,6 @@ void setup() {
   pinMode(15, OUTPUT);
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
-  pinMode(led1, OUTPUT);
-  pinMode(led2, OUTPUT);
-  pinMode(led3, OUTPUT);
-  pinMode(led4, OUTPUT); // Set led4 as output
 
   // Connect to WiFi
   WiFi.begin(ssid, password);
@@ -63,9 +55,6 @@ void loop() {
     previousMillis = currentMillis;
     ultrasonic_reading();
   }
-
-  // Control LEDs based on Firebase values
-  controlLEDs();
 }
 
 void ultrasonic_reading() {
@@ -89,25 +78,5 @@ void ultrasonic_reading() {
   if (distance != lastDistance) {
     Firebase.setInt(firebaseData1, "/Trash-Bin/Bin-1/", distance);
     lastDistance = distance;
-  }
-}
-
-// Function to control LEDs based on Firebase values
-void controlLEDs() {
-  // Control LEDs based on Firebase values with checks
-  controlLED(led1, "/Automation/Led-1");
-  controlLED(led2, "/Automation/Led-2");
-  controlLED(led3, "/Automation/Led-3");
-  controlLED(led4, "/Automation/Led-4");
-}
-
-void controlLED(int ledPin, const char* path) {
-  if (Firebase.getInt(firebaseData1, path)) {
-    int ledState = firebaseData1.intData();
-    digitalWrite(ledPin, ledState); // Turn LED on/off
-    Serial.print("LED at ");
-    Serial.print(path);
-    Serial.print(": ");
-    Serial.println(ledState ? "ON" : "OFF");
   }
 }

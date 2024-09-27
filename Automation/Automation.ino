@@ -9,8 +9,6 @@
 const char* ssid = "Redmi";
 const char* password = "876543210";
 
-const int trigPin = 12;
-const int echoPin = 14;
 const int led1 = 26;
 const int led2 = 25;
 const int led3 = 33;
@@ -21,15 +19,9 @@ FirebaseData firebaseData1;
 FirebaseConfig firebaseConfig;
 FirebaseAuth firebaseAuth;
 
-// Timer variables
-unsigned long previousMillis = 0;
-const long interval = 1000; // Read every 1 second
-
 void setup() {
   Serial.begin(115200);
   pinMode(15, OUTPUT);
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
   pinMode(led1, OUTPUT);
   pinMode(led2, OUTPUT);
   pinMode(led3, OUTPUT);
@@ -56,40 +48,8 @@ void setup() {
 }
 
 void loop() {
-  unsigned long currentMillis = millis();
-
-  // Call the ultrasonic reading function every second
-  if (currentMillis - previousMillis >= interval) {
-    previousMillis = currentMillis;
-    ultrasonic_reading();
-  }
-
   // Control LEDs based on Firebase values
   controlLEDs();
-}
-
-void ultrasonic_reading() {
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-
-  long duration = pulseIn(echoPin, HIGH);
-  int distance = duration * 0.0343 / 2;
-  if (distance >= 1000) {
-    distance = 0;
-  }
-
-  Serial.print("Distance: ");
-  Serial.println(distance);
-
-  // Send the distance value to Firebase only if changed
-  static int lastDistance = 0;
-  if (distance != lastDistance) {
-    Firebase.setInt(firebaseData1, "/Trash-Bin/Bin-1/", distance);
-    lastDistance = distance;
-  }
 }
 
 // Function to control LEDs based on Firebase values
