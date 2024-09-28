@@ -10,7 +10,11 @@ led3 = machine.Pin(33, machine.Pin.OUT)
 led4 = machine.Pin(32, machine.Pin.OUT)
 
 # Firebase URL
-firebase_url = 'https://iwms-v2-default-rtdb.firebaseio.com/Automation.json'
+firebase_url = 'https://iwms-automation-default-rtdb.firebaseio.com/Automation.json'
+
+
+#Old Link: https://iwms-v2-default-rtdb.firebaseio.com/Automation.json
+#New Link:https://iwms-automation-default-rtdb.firebaseio.com/Automation.json
 
 # Wi-Fi Credentials
 SSID = 'Redmi'  # Replace with your Wi-Fi network name
