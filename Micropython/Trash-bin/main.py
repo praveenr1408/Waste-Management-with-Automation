@@ -13,43 +13,29 @@ password = "876543210"
 station = network.WLAN(network.STA_IF)
 station.active(True)
 
-def connect_wifi(retries=5, delay=5):
+def connect_wifi(delay=5):
     """
-    Attempt to connect to Wi-Fi. Retry if connection fails.
+    Attempt to connect to Wi-Fi. Retry indefinitely if connection fails.
     
-    :param retries: Maximum number of retries before giving up
     :param delay: Delay between retries in seconds
     """
-    attempt = 0
-    while not station.isconnected() and attempt < retries:
+    while not station.isconnected():
         try:
-            print(f"Attempting to connect to Wi-Fi (Attempt {attempt+1}/{retries})...")
+            print("Attempting to connect to Wi-Fi...")
             station.connect(ssid, password)
             time.sleep(delay)
-            attempt += 1
         except OSError as e:
             print(f"OSError occurred: {e}")
             time.sleep(delay)  # Wait before retrying
 
-    if station.isconnected():
-        print("Connected to Wi-Fi:", station.ifconfig())
-        return True
-    else:
-        print("Failed to connect to Wi-Fi after multiple attempts")
-        return False
+    print("Connected to Wi-Fi:", station.ifconfig())
 
 # Initial connection attempt
-connected = connect_wifi()
+connect_wifi()
 
-if not connected:
-    # If the initial connection fails, you can choose to halt or retry indefinitely
-    while not connected:
-        print("Retrying connection in 10 seconds...")
-        time.sleep(10)
-        connected = connect_wifi()
-
-# Firebase URL
+# Firebase URL and Secret
 firebase_url = "https://eco-smart-wms-default-rtdb.asia-southeast1.firebasedatabase.app/Trash-Bins/Canteen/Bin-1.json"
+firebase_secret = "d3LwMW7cGlDZVAdI6MFaPdQXCNAjuCidyeJJjLQB"  # Replace with your Firebase Database secret
 
 # Use GPIO 12 for Trig and GPIO 14 for Echo
 sensor = UltrasonicSensor(trig_pin=12, echo_pin=14)
@@ -64,18 +50,17 @@ while True:
     print("Distance:", distance, "cm")
     
     if distance <= 50:
-        # set_servo_angle(90)  # Turn servo to 90 degrees
-        LED.value(1)
+        LED.value(1)  # Turn on LED if the distance is less than or equal to 50 cm
         time.sleep(1)
     else:
-        # set_servo_angle(0)
-        LED.value(0)
+        LED.value(0)  # Turn off LED otherwise
 
     # Send data to Firebase
     data = {"distance": distance}
+    firebase_url_with_auth = f"{firebase_url}?auth={firebase_secret}"
 
     try:
-        response = urequests.patch(firebase_url, json=data)
+        response = urequests.patch(firebase_url_with_auth, json=data)
         print(response.text)
 
         if response.status_code == 200:
@@ -85,4 +70,5 @@ while True:
     except Exception as e:
         print(f"Error sending data: {e}")
     
-    time.sleep(0.5)  # Send data every 2 seconds
+    time.sleep(2)  # Send data every 2 seconds
+
