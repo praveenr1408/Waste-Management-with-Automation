@@ -10,11 +10,8 @@ led3 = machine.Pin(33, machine.Pin.OUT)
 led4 = machine.Pin(32, machine.Pin.OUT)
 
 # Firebase URL
-firebase_url = 'https://iwms-automation-default-rtdb.firebaseio.com/Automation.json'
+firebase_url = 'https://eco-smart-wms-default-rtdb.asia-southeast1.firebasedatabase.app/Automation.json'
 
-
-#Old Link: https://iwms-v2-default-rtdb.firebaseio.com/Automation.json
-#New Link:https://iwms-automation-default-rtdb.firebaseio.com/Automation.json
 
 # Wi-Fi Credentials
 SSID = 'Redmi'  # Replace with your Wi-Fi network name
@@ -56,7 +53,7 @@ def main():
     # Main loop to fetch LED status from Firebase
     while True:
         get_led_status()
-        time.sleep(0.2)  # Wait 2 seconds before the next request
+        time.sleep(0.1)  # Wait 2 seconds before the next request
 
 # Run the program
 main()

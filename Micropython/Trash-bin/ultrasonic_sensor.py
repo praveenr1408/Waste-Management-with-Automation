@@ -25,7 +25,9 @@ class UltrasonicSensor:
 
         # Calculate the distance (duration / 2 * speed of sound)
         duration = time.ticks_diff(end, start)
-        distance = (duration / 2) * 0.0343  # speed of sound in cm/us
+        #distance = (duration / 2) * 0.0343  # speed of sound in cm/us
+        distance = duration * 0.034 / 2
 
         # Round the distance to a whole number or a specified decimal place
         return int(distance)  # Adjust to 2 decimal places
+
