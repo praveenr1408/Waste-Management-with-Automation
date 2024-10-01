@@ -74,7 +74,8 @@ while True:
         "id": 1,
         "distance": distance,
         "location": "Canteen"
-    }
+        "Status":"off"
+        }
     
     try:
         response = urequests.post(nodejs_server_url, json=obj)

@@ -1,0 +1,5 @@
+SSID=Redmi
+PASSWORD=876543210
+WEBSOCKET_URL=ws://test-iot-554d.onrender.com
+LOCATION=Gym
+BIN_ID=1
