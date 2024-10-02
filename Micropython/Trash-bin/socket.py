@@ -6,14 +6,8 @@ import socket
 import ujson
 
 # Constants
-TRIG_PIN = 12
-ECHO_PIN = 14
-LED_PIN = 26
-DISTANCE_THRESHOLD = 50  # cm
 MEASUREMENT_INTERVAL = 5  # seconds
 MAX_SOCKET_ATTEMPTS = 5
-MAX_DISTANCE_RETRIES = 3
-DISTANCE_TIMEOUT = 1000000  # 1 second in microseconds
 
 # Embedded configuration
 SSID = 'Redmi'
@@ -22,15 +16,6 @@ SERVER_URL = 'test-iot-554d.onrender.com'
 SERVER_PORT = 80  # Change to the correct port if necessary
 LOCATION = 'Library'
 BIN_ID = 1
-
-# Hardware setup
-led = Pin(LED_PIN, Pin.OUT)
-trig = Pin(TRIG_PIN, Pin.OUT)
-echo = Pin(ECHO_PIN, Pin.IN)
-
-# Optionally: If you have an IR sensor for the bin lid status
-IR_SENSOR_PIN = 27
-bin_lid = Pin(IR_SENSOR_PIN, Pin.IN)
 
 def connect_wifi():
     """Connect to the Wi-Fi network."""
@@ -49,33 +34,6 @@ def ensure_wifi_connected():
     if not wlan.isconnected():
         print('Wi-Fi disconnected. Reconnecting...')
         connect_wifi()
-
-def measure_distance():
-    """Measure distance using the ultrasonic sensor."""
-    for _ in range(MAX_DISTANCE_RETRIES):
-        trig.value(0)
-        time.sleep_us(2)
-        trig.value(1)
-        time.sleep_us(10)
-        trig.value(0)
-
-        start_time = time.ticks_us()
-
-        while echo.value() == 0:
-            if time.ticks_diff(time.ticks_us(), start_time) > DISTANCE_TIMEOUT:
-                return -1
-
-        pulse_start = time.ticks_us()
-        while echo.value() == 1:
-            if time.ticks_diff(time.ticks_us(), pulse_start) > DISTANCE_TIMEOUT:
-                return -1
-
-        pulse_end = time.ticks_us()
-        pulse_duration = time.ticks_diff(pulse_end, pulse_start)
-        distance = (pulse_duration * 0.0343) / 2
-        return int(distance)
-
-    return -1
 
 def connect_socket():
     """Attempt to connect to the TCP socket server."""
@@ -98,6 +56,7 @@ def send_data(s, data):
     try:
         if s:
             request = ujson.dumps(data) + "\r\n"  # Append a newline for better handling on the server side
+            print("JSON to send:", request)  # Debug: print JSON before sending
             s.send(request.encode('utf-8'))
             print("Data sent:", data)
             response = s.recv(1024)  # Receive server response
@@ -113,26 +72,16 @@ def main():
 
     while True:
         ensure_wifi_connected()
-        distance = measure_distance()
-        if distance == -1:
-            sensor_status = "OFF"
-        else:
-            sensor_status = "ON"
-            led.value(1 if distance <= DISTANCE_THRESHOLD else 0)
 
-        # Determine bin lid status if you have the IR sensor
-        bin_lid_status = "OPEN" if bin_lid.value() == 1 else "CLOSE"
-
+        # Prepare data for sending
         data = {
-            "type": "distance",
             "id": BIN_ID,
-            "distance": distance,
+            "type": "distance",
             "location": LOCATION,
-            "sensor_status": sensor_status,
-            "microProcessor_status": "ON",
-            "binLid_status": bin_lid_status
+            "microProcessor_status": "ON"
         }
 
+        # Send data to the server
         if not send_data(s, data):
             s = connect_socket()  # Reconnect if sending fails
 
@@ -142,4 +91,4 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        led.value(0)
+        print("Program stopped by user.")
