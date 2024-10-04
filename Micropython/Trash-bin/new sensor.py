@@ -7,7 +7,7 @@ from machine import Pin
 ssid = 'Redmi'
 password = '876543210'
 
-# Define pins for the JSN-SR04T sensor
+# Define pins for the AJ-SR04M sensor
 TRIG_PIN = 13   # Change to your GPIO pin for Trig
 ECHO_PIN = 12   # Change to your GPIO pin for Echo
 LED = Pin(26, Pin.OUT)
@@ -41,18 +41,18 @@ def measure_distance():
     trig.value(0)
 
     # Measure the duration of the pulse
-    timeout = 10000  # Timeout value in microseconds
+    timeout = 20000  # Adjusted Timeout value in microseconds
     start_time = time.ticks_us()
 
     while echo.value() == 0:
         if time.ticks_diff(time.ticks_us(), start_time) > timeout:
-            return -1  # Return -1 for timeout (sensor not working)
-    
+            return None  # Return None for timeout (sensor not working)
+
     start = time.ticks_us()
 
     while echo.value() == 1:
         if time.ticks_diff(time.ticks_us(), start) > timeout:
-            return -1  # Return -1 for timeout (sensor not working)
+            return None  # Return None for timeout (sensor not working)
 
     end = time.ticks_us()
 
@@ -67,22 +67,23 @@ connect_wifi()
 # Initialize variables
 previous_distance = None  # To track previous distance measurement
 distance_threshold = 5    # Define a threshold for distance change
-status_update_interval = 10  # 120 seconds = 2 minutes
+status_update_interval = 10  # 10 seconds for faster status update
 last_status_update_time = time.time()  # Record the last status update time
 
 while True:
     # Measure distance from the sensor
     distance = measure_distance()
 
-    if distance == -1:
-        status = "off"  # Sensor not working
+    if distance is None:
         print("Sensor not responding")
+        # Skip sending data if the sensor is not responding
+        continue
     else:
         status = "on"  # Sensor working
         print(f'Distance: {distance} cm')
 
     # Control the LED based on distance
-    if distance <= 50 and distance != -1:
+    if distance <= 50:
         LED.value(1)  # Turn on LED if distance is <= 50 cm
         binLid_status = "OPEN"
     else:
@@ -91,7 +92,7 @@ while True:
 
     current_time = time.time()
 
-    # Send status update every 2 minutes (120 seconds)
+    # Send status update every 10 seconds
     if current_time - last_status_update_time >= status_update_interval:
         # Prepare dynamic data to send to the Node.js server
         status_obj = {
@@ -129,17 +130,16 @@ while True:
             "sensor_status": status
         }
 
-        try:
-            response = urequests.post(nodejs_server_url, json=distance_obj)
-            print(f'Status: {response.status_code}, Response: {response.text}')
-            response.close()
-        except Exception as e:
-            print('Error sending distance data:', e)
+#         try:
+#             response = urequests.post(nodejs_server_url, json=distance_obj)
+#             print(f'Status: {response.status_code}, Response: {response.text}')
+#             response.close()
+#         except Exception as e:
+#             print('Error sending distance data:', e)
 
         print(distance_obj)
 
         # Update the previous distance
         previous_distance = distance
 
-    time.sleep(1)  # Check every half second for distance changes
-
+    time.sleep(1)  # Check every second for distance changes
