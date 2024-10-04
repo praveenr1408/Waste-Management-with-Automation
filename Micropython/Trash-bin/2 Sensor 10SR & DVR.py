@@ -3,6 +3,7 @@ import time
 import urequests  # MicroPython library for HTTP requests
 from machine import Pin, PWM
 
+binMaxCapacity = 50
 # Wi-Fi Credentials
 ssid = 'Redmi'
 password = '876543210'
@@ -93,7 +94,7 @@ def control_servo(position):
 
 def calculate_percentage(distance):
     full_bin_distance = 20  # Distance for 100% (full)
-    empty_bin_distance = 50  # Distance for 0% (empty)
+    empty_bin_distance = binMaxCapacity  # Distance for 0% (empty)
 
     if distance <= full_bin_distance:
         return 100  # Bin is full
@@ -160,13 +161,15 @@ while True:
 
         # Prepare dynamic data to send to the Node.js server
         status_obj = {
-            "type": "distance",
             "id": 1,
-            "binLid_status": binLid_status,
+            "binLocation": "Canteen",
             "distance": distance_aj,
-            "location": "Canteen",
-            "microProcessor_status": "ON",
-            "sensor_status": waste_level_sensor_status  # Use the updated sensor status
+            "filledBinPercentage": percentage,
+            "geoLocation": "2d45345345,87768668",
+            "microProcessorStatus": "ON",
+            "sensorStatus": waste_level_sensor_status,
+            "binLidStatus": binLid_status,
+            "maxBinCapacity": binMaxCapacity
         }
 
         try:
@@ -189,15 +192,27 @@ while True:
     current_time = time.time()
     if current_time - last_status_update_time >= status_update_interval:
         # Prepare dynamic data to send to the Node.js server
+#         status_obj = {
+#             "type": "distance",
+#             "id": 1,
+#             "binLid_status": binLid_status,
+#             "distance": distance_aj,
+#             "location": "Canteen",
+#             "microProcessor_status": "ON",
+#             "sensor_status": waste_level_sensor_status  # Use the updated sensor status
+#         }
         status_obj = {
-            "type": "distance",
             "id": 1,
-            "binLid_status": binLid_status,
+            "binLocation": "Canteen",
             "distance": distance_aj,
-            "location": "Canteen",
-            "microProcessor_status": "ON",
-            "sensor_status": waste_level_sensor_status  # Use the updated sensor status
+            "filledBinPercentage": percentage,
+            "geoLocation": "2d45345345,87768668",
+            "microProcessorStatus": "ON",
+            "sensorStatus": waste_level_sensor_status,
+            "binLidStatus": binLid_status,
+            "maxBinCapacity": binMaxCapacity
         }
+
 
         try:
             response = urequests.post(nodejs_server_url, json=status_obj)
