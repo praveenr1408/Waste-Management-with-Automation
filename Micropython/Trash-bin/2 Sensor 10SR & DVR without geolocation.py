@@ -85,10 +85,10 @@ def measure_lid_distance():
 # Function to control the servo motor (open/close bin lid)
 def control_servo(position):
     if position == "OPEN":
-        servo_pin.duty(125)  # Adjust duty value for your servo to open the lid
+        servo_pin.duty(30)  # Adjust duty value for your servo to open the lid
         LED.value(1)        # Turn on LED when the lid is open
     elif position == "CLOSED":
-        servo_pin.duty(30)  # Adjust duty value for your servo to close the lid
+        servo_pin.duty(125)  # Adjust duty value for your servo to close the lid
         LED.value(0)         # Turn off LED when the lid is closed
         
 
@@ -227,5 +227,4 @@ while True:
         last_status_update_time = current_time
 
     time.sleep(1)  # Check every second for distance changes
-
 
