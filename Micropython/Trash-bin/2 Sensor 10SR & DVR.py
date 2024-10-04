@@ -120,20 +120,20 @@ while True:
 
     # Initialize sensor status
     if distance_aj == -1:
-        waste_level_sensor_status = "off"
+        waste_level_sensor_status = "OFF"
         print("AJ-SR04M sensor not responding")
         LED.value(0)  # Turn off LED if the sensor is not working
     else:
-        waste_level_sensor_status = "on"
+        waste_level_sensor_status = "ON"
         print(f'Waste Level Distance: {distance_aj} cm')
 
     # Control the LED based on AJ-SR04M distance
-    if distance_aj >= 0 and distance_aj <= 50:
-        LED.value(1)  # Turn on LED if waste level is <= 50 cm
-        binLid_status = "OPEN"
-    else:
-        LED.value(0)  # Turn off LED if waste level is > 50 cm
-        binLid_status = "CLOSED"
+#     if distance_aj >= 0 and distance_aj <= 50:
+#         LED.value(1)  # Turn on LED if waste level is <= 50 cm
+#         binLid_status = "OPEN"
+#     else:
+#         LED.value(0)  # Turn off LED if waste level is > 50 cm
+#         binLid_status = "CLOSED"
 
     # Measure distance from HC-SR04 (lid control sensor)
     distance_hc = measure_lid_distance()
@@ -227,4 +227,5 @@ while True:
         last_status_update_time = current_time
 
     time.sleep(1)  # Check every second for distance changes
+
 
